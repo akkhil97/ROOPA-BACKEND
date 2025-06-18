@@ -1,7 +1,7 @@
 package roopa.com.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.*;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import roopa.com.entity.Media;
@@ -17,43 +17,42 @@ public class MediaController {
     private MediaService mediaService;
 
     @PostMapping("/upload")
-    public ResponseEntity<Media> uploadFile(@RequestParam("file") MultipartFile file,
-                                            @RequestParam("title") String title) {
+    public ResponseEntity<Media> uploadMedia(@RequestParam("files") MultipartFile[] files,
+                                             @RequestParam("title") String title) {
         try {
-            return ResponseEntity.ok(mediaService.uploadFile(file, title));
+            Media media = mediaService.uploadMedia(files, title);
+            return ResponseEntity.ok(media);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(null);
         }
     }
 
     @PutMapping("/update/{id}")
-    public ResponseEntity<Media> updateFile(@PathVariable Long id,
-                                            @RequestParam("file") MultipartFile file,
-                                            @RequestParam("title") String title) {
+    public ResponseEntity<Media> updateMedia(@PathVariable Long id,
+                                             @RequestParam("files") MultipartFile[] files,
+                                             @RequestParam("title") String title) {
         try {
-            return ResponseEntity.ok(mediaService.updateFile(id, file, title));
+            Media updatedMedia = mediaService.updateMedia(id, files, title);
+            return ResponseEntity.ok(updatedMedia);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(null);
         }
     }
 
-    @GetMapping("/download/{id}")
-    public ResponseEntity<byte[]> downloadFile(@PathVariable Long id) {
-        Media media = mediaService.getFile(id);
-        return ResponseEntity.ok()
-                .contentType(MediaType.parseMediaType(media.getFileType()))
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + media.getFileName() + "\"")
-                .body(media.getData());
+    @GetMapping("/{id}")
+    public ResponseEntity<Media> getMedia(@PathVariable Long id) {
+        Media media = mediaService.getMedia(id);
+        return ResponseEntity.ok(media);
     }
 
     @GetMapping
-    public List<Media> getAllFiles() {
-        return mediaService.getAllFiles();
+    public List<Media> getAllMedia() {
+        return mediaService.getAllMedia();
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteFile(@PathVariable Long id) {
-        mediaService.deleteFile(id);
+    public ResponseEntity<String> deleteMedia(@PathVariable Long id) {
+        mediaService.deleteMedia(id);
         return ResponseEntity.ok("Deleted successfully");
     }
 }

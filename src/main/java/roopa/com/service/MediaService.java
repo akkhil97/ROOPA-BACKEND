@@ -7,6 +7,7 @@ import roopa.com.entity.Media;
 import roopa.com.repository.MediaRepo;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -15,44 +16,70 @@ public class MediaService {
     @Autowired
     private MediaRepo mediaRepo;
 
-    public Media uploadFile(MultipartFile file, String title) throws IOException {
-        if (file.getSize() > 30 * 1024 * 1024) {
-            throw new RuntimeException("File size exceeds 30MB limit");
+    public Media uploadMedia(MultipartFile[] files, String title) throws IOException {
+        if (files.length > 20) {
+            throw new RuntimeException("You can upload up to 20 photos only.");
         }
 
         Media media = new Media();
         media.setTitle(title);
-        media.setFileName(file.getOriginalFilename());
-        media.setFileType(file.getContentType());
-        media.setFileSize(file.getSize());
-        media.setData(file.getBytes());
+        media.setPostedDate(LocalDateTime.now());
+
+        setPhotos(media, files);
 
         return mediaRepo.save(media);
     }
 
-    public Media updateFile(Long id, MultipartFile file, String title) throws IOException {
-        Media media = mediaRepo.findById(id)
+    public Media updateMedia(Long id, MultipartFile[] files, String title) throws IOException {
+        if (files.length > 20) {
+            throw new RuntimeException("You can upload up to 20 photos only.");
+        }
+
+        Media existingMedia = mediaRepo.findById(id)
                 .orElseThrow(() -> new RuntimeException("Media not found"));
 
-        media.setTitle(title);
-        media.setFileName(file.getOriginalFilename());
-        media.setFileType(file.getContentType());
-        media.setFileSize(file.getSize());
-        media.setData(file.getBytes());
+        existingMedia.setTitle(title);
+        existingMedia.setPostedDate(LocalDateTime.now());
 
-        return mediaRepo.save(media);
+        setPhotos(existingMedia, files);
+
+        return mediaRepo.save(existingMedia);
     }
 
-    public Media getFile(Long id) {
+    public Media getMedia(Long id) {
         return mediaRepo.findById(id)
                 .orElseThrow(() -> new RuntimeException("Media not found"));
     }
 
-    public List<Media> getAllFiles() {
+    public List<Media> getAllMedia() {
         return mediaRepo.findAll();
     }
 
-    public void deleteFile(Long id) {
+    public void deleteMedia(Long id) {
         mediaRepo.deleteById(id);
+    }
+
+    // Helper method
+    private void setPhotos(Media media, MultipartFile[] files) throws IOException {
+        if (files.length >= 1) media.setPhoto1(files[0].getBytes());
+        if (files.length >= 2) media.setPhoto2(files[1].getBytes());
+        if (files.length >= 3) media.setPhoto3(files[2].getBytes());
+        if (files.length >= 4) media.setPhoto4(files[3].getBytes());
+        if (files.length >= 5) media.setPhoto5(files[4].getBytes());
+        if (files.length >= 6) media.setPhoto6(files[5].getBytes());
+        if (files.length >= 7) media.setPhoto7(files[6].getBytes());
+        if (files.length >= 8) media.setPhoto8(files[7].getBytes());
+        if (files.length >= 9) media.setPhoto9(files[8].getBytes());
+        if (files.length >= 10) media.setPhoto10(files[9].getBytes());
+        if (files.length >= 11) media.setPhoto11(files[10].getBytes());
+        if (files.length >= 12) media.setPhoto12(files[11].getBytes());
+        if (files.length >= 13) media.setPhoto13(files[12].getBytes());
+        if (files.length >= 14) media.setPhoto14(files[13].getBytes());
+        if (files.length >= 15) media.setPhoto15(files[14].getBytes());
+        if (files.length >= 16) media.setPhoto16(files[15].getBytes());
+        if (files.length >= 17) media.setPhoto17(files[16].getBytes());
+        if (files.length >= 18) media.setPhoto18(files[17].getBytes());
+        if (files.length >= 19) media.setPhoto19(files[18].getBytes());
+        if (files.length >= 20) media.setPhoto20(files[19].getBytes());
     }
 }

@@ -4,6 +4,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import roopa.com.entity.Notice;
 import roopa.com.repository.NoticeRepo;
+import java.time.LocalDateTime;
+import java.util.stream.Collectors;
 
 import java.util.List;
 import java.util.Optional;
@@ -19,7 +21,12 @@ public class NoticeService {
     }
 
     public List<Notice> getAllNotices() {
-        return noticeRepo.findAll();
+        LocalDateTime cutoffTime = LocalDateTime.now().minusHours(48);
+
+        return noticeRepo.findAll().stream()
+                .filter(notice -> notice.getPostedDateTime() != null
+                        && notice.getPostedDateTime().isAfter(cutoffTime))
+                .collect(Collectors.toList());
     }
 
     public Optional<Notice> getNoticeById(Long id) {
