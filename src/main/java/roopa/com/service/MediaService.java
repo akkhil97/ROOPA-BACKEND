@@ -7,7 +7,10 @@ import roopa.com.entity.Media;
 import roopa.com.repository.MediaRepo;
 
 import java.io.IOException;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 @Service
@@ -59,7 +62,7 @@ public class MediaService {
         mediaRepo.deleteById(id);
     }
 
-    // Helper method
+    // Helper method for photos
     private void setPhotos(Media media, MultipartFile[] files) throws IOException {
         if (files.length >= 1) media.setPhoto1(files[0].getBytes());
         if (files.length >= 2) media.setPhoto2(files[1].getBytes());
@@ -81,5 +84,26 @@ public class MediaService {
         if (files.length >= 18) media.setPhoto18(files[17].getBytes());
         if (files.length >= 19) media.setPhoto19(files[18].getBytes());
         if (files.length >= 20) media.setPhoto20(files[19].getBytes());
+    }
+
+    // 🟢 NEW METHOD: Format Posted Date
+    public String formatPostedDate(LocalDateTime postedDate) {
+        if (postedDate == null) {
+            return "Date unknown";
+        }
+
+        LocalDate postDate = postedDate.toLocalDate();
+        LocalDate today = LocalDate.now();
+
+        long daysBetween = ChronoUnit.DAYS.between(postDate, today);
+
+        if (daysBetween <= 3) {
+            return "✨ NEW";
+        } else if (daysBetween <= 10) {
+            return "Posted " + daysBetween + " day" + (daysBetween > 1 ? "s" : "") + " ago";
+        } else {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+            return "Posted on " + postDate.format(formatter);
+        }
     }
 }
