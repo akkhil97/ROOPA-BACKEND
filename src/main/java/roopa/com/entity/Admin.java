@@ -1,6 +1,5 @@
 package roopa.com.entity;
 
-
 import jakarta.persistence.*;
 
 @Entity
@@ -10,6 +9,7 @@ public class Admin {
     private Long id;
     private String username;
     private String password;
+    private String otp; // New field for OTP
 
     public Admin() {}
 
@@ -41,5 +41,12 @@ public class Admin {
     public void setPassword(String password) {
         this.password = password;
     }
-}
 
+    public String getOtp() {
+        return otp;
+    }
+
+    public void setOtp(String otp) {
+        this.otp = otp;
+    }
+}

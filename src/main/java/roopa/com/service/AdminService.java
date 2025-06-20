@@ -29,5 +29,3 @@ public class AdminService {
         return adminRepo.findByUsername(username);
     }
 }
-
-
