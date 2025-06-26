@@ -58,16 +58,20 @@ public class AdminController {
             return ResponseEntity.badRequest().body("Email is required");
         }
 
+        // ✅ Check if user exists before sending OTP
+        Admin existing = adminService.getAdminByUsername(email);
+        if (existing == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
+        }
+
         // Generate 6-digit OTP
         String otp = String.format("%06d", new Random().nextInt(999999));
 
-        // Store OTP in memory
+        // Store OTP
         otpStorage.put(email, otp);
 
-        // Send OTP email
         try {
-            emailService.sendOtpEmail(email, otp);  // ONLY pass email + OTP
-
+            emailService.sendOtpEmail(email, otp);
             System.out.println("OTP " + otp + " sent to: " + email);
             return ResponseEntity.ok("OTP sent successfully");
         } catch (Exception e) {
@@ -101,25 +105,41 @@ public class AdminController {
     }
 
 
-
     // === CHANGE PASSWORD BY LOGGED IN USER ===
     @PostMapping("/change-password")
-    public ResponseEntity<String> changePassword(@RequestBody Map<String, String> request) {
+    public ResponseEntity<String> changePasswordWithOtp(@RequestBody Map<String, String> request) {
         String email = request.get("email");
-        String oldPassword = request.get("oldPassword");
+        String otp = request.get("otp");
         String newPassword = request.get("newPassword");
 
-        if (email == null || oldPassword == null || newPassword == null) {
+        if (email == null || otp == null || newPassword == null) {
             return ResponseEntity.badRequest().body("Missing required fields");
         }
 
-        Admin existing = adminService.getAdminByUsername(email);
-        if (existing != null && existing.getPassword().equals(oldPassword)) {
-            existing.setPassword(newPassword);
-            adminService.saveAdmin(existing);
-            return ResponseEntity.ok("Password changed successfully!");
-        } else {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid current password");
+        String storedOtp = otpStorage.get(email);
+        if (storedOtp == null || !storedOtp.equals(otp)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid OTP");
         }
+
+        Admin existing = adminService.getAdminByUsername(email);
+        if (existing == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
+        }
+
+        if (existing.getPassword().equals(newPassword)) {
+            return ResponseEntity.badRequest().body("New password must be different from the current password");
+        }
+
+        // Save new password
+        existing.setPassword(newPassword);
+        adminService.saveAdmin(existing);
+
+        // Clear OTP
+        otpStorage.remove(email);
+
+        // Optionally: Send confirmation
+        emailService.sendPasswordResetConfirmationEmail(email);
+
+        return ResponseEntity.ok("Password changed successfully");
     }
 }
