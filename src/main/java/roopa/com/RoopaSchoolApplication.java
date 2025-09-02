@@ -17,7 +17,7 @@ public class RoopaSchoolApplication {
 		@Override
 		public void addCorsMappings(CorsRegistry registry) {
 			registry.addMapping("/**")
-					.allowedOrigins("http://ec2-3-110-115-84.ap-south-1.compute.amazonaws.com")
+					.allowedOrigins("https://roopaeducationalsociety.com")
 					.allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
 					.allowedHeaders("*");
 		}
